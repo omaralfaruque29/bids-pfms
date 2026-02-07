@@ -98,9 +98,11 @@ public class LoginController {
                     subscriptionForCurrentFY = row.getCell(5).getNumericCellValue();
                     openingInterest = row.getCell(6).getNumericCellValue();
                     interestForPreviousFY = row.getCell(7).getNumericCellValue();
-                    totalBalance = row.getCell(8).getNumericCellValue();
+                    //totalBalance = row.getCell(8).getNumericCellValue();
+                    totalBalance = Math.round(row.getCell(8).getNumericCellValue() * 100.0) / 100.0;
                     loanBalance = row.getCell(9).getNumericCellValue();
-                    netBalance = row.getCell(10).getNumericCellValue();
+                    //netBalance = row.getCell(10).getNumericCellValue();
+                    netBalance = Math.round(row.getCell(10).getNumericCellValue() * 100.0) / 100.0;
 
 
                     System.out.println("Employee ID: " +empID);
