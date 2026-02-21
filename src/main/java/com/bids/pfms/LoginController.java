@@ -4,6 +4,10 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +17,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Controller
 public class LoginController {
+
+    @Autowired
+    private PdfReportService pdfReportService;
 
     private int empID;
     private String employeeName;
@@ -123,20 +132,22 @@ public class LoginController {
                     model.addAttribute("period", period);
                     model.addAttribute("GPFAccountNo", "");
 
-                    model.addAttribute("t1", "Opening subscription as on " +startingDateofPeriod);
+                    model.addAttribute("t1", "Opening subscription 'as on " +startingDateofPeriod + "'");
                     model.addAttribute("t11", "" +openingSubscription);
                     model.addAttribute("t2", "Subscription for the FY " +startingYearofPeriod+ "-" + endingYearofPeriod);
                     model.addAttribute("t21", "" +subscriptionForCurrentFY);
-                    model.addAttribute("t3", "Opening interest as on " +startingDateofPeriod);
+                    model.addAttribute("t3", "Opening interest 'as on " +startingDateofPeriod + "'");
                     model.addAttribute("t31", "" +openingInterest);
                     model.addAttribute("t4", "Interest received FY " +startingYearofPeriod+ "-" +endingYearofPeriod+ " (acccrued)");
                     model.addAttribute("t41", "" +interestForPreviousFY);
                     model.addAttribute("t5", "Total member's balance " +endingDateofPeriod);
                     model.addAttribute("t51", "" +totalBalance);
-                    model.addAttribute("t6", "Loan balance 'as on " +endingDateofPeriod);
+                    model.addAttribute("t6", "Loan balance 'as on " +endingDateofPeriod + "'");
                     model.addAttribute("t61", ""+loanBalance);
-                    model.addAttribute("t7", "Net member's balance 'as on " +endingDateofPeriod);
+                    model.addAttribute("t7", "Net member's balance 'as on " +endingDateofPeriod + "'");
                     model.addAttribute("t71", ""+netBalance);
+
+                    model.addAttribute("date", LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
                 break;
                 }
             }
@@ -148,4 +159,15 @@ public class LoginController {
         model.addAttribute("eight", "last data");
         return "pf-page";
     }
+
+    @GetMapping("/report")
+    public ResponseEntity<byte[]> downloadPdfReport() throws Exception {
+        byte[] pdfBytes = pdfReportService.createPdfReport();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=PF Report.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
 }
