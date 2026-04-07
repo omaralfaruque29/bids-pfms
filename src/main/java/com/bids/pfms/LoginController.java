@@ -170,4 +170,16 @@ public class LoginController {
                 .body(pdfBytes);
     }
 
+    @GetMapping("/send-email")
+    @ResponseBody
+    public ResponseEntity<String> sendReportToEmail() {
+        try {
+            pdfReportService.sendPfReportToEmail();
+            return ResponseEntity.ok("Email sent successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to send email!");
+        }
+    }
+
+
 }

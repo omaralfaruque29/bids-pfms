@@ -241,4 +241,61 @@ public class PdfReportService {
         return out.toByteArray();
     }
 
+    public void sendPfReportToEmail(){
+        final String username = "raj.cse0929@gmail.com";        // Sender Gmail
+        final String password = "wxswqtilusprkjai";           // Use App Password, NOT Gmail password // omar@bids.org.bd:gheffbuwybnfupza //raj.cse0929@gmail.com: wxswqtilusprkjai
+        final String toEmail = "raj.cse0929@gmail.com";          // Recipient Email
+
+        String subject = "Provident Fund (PF) Report";
+        String bodyText = "Dear member,\nPlease find your provident fund (PF) report in the email attachment.\n\nRegards,\nOmar Al Faruque \nProgrammer, BIDS\nEmail: omar@bids.org.bd\nCell: 01738404500\nTelephone: +88-02-58160474\nPABX: 258";
+        String pdfFilePath = "C://Users//CLOUDSLIP//Downloads//PF Report.pdf";
+        // Gmail SMTP configuration
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+
+        // Create session
+        Session session = Session.getInstance(props,
+                new Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
+
+        try {
+            // Create message
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username));
+            message.setRecipients(
+                    Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject);
+
+            // Text part
+            MimeBodyPart textPart = new MimeBodyPart();
+            textPart.setText(bodyText);
+
+            // PDF attachment part
+            MimeBodyPart attachmentPart = new MimeBodyPart();
+            File file = new File(pdfFilePath);
+            attachmentPart.attachFile(file);
+
+            // Combine parts
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(textPart);
+            multipart.addBodyPart(attachmentPart);
+
+            message.setContent(multipart);
+
+            // Send email
+            Transport.send(message);
+            System.out.println("Email sent successfully with PDF attachment!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }
