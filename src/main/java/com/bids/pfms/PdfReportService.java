@@ -62,7 +62,7 @@ public class PdfReportService {
 
     public void getProvidentFund(int employeeID){
         try {
-            File file = new File("F:\\Bids\\pfms\\other resources\\provident fund 2024-25.xlsx");
+            File file = new File("F:\\Java workspace\\BIDS\\bids-pfms\\other resources\\provident fund 2024-25.xlsx");
             FileInputStream fileInputStream = new FileInputStream(file);
             XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -135,7 +135,7 @@ public class PdfReportService {
 
             document.setMargins(0, 36, 36, 36);
             // Header
-            Image img = new Image(ImageDataFactory.create("F:\\Bids\\pfms\\other resources\\hdr.jpg"));
+            Image img = new Image(ImageDataFactory.create("F:\\Java workspace\\BIDS\\bids-pfms\\other resources\\hdr.jpg"));
             img.setWidth(UnitValue.createPercentValue(100));
             document.add(img);
             document.add(new Paragraph()
@@ -248,7 +248,7 @@ public class PdfReportService {
 
         String subject = "Provident Fund (PF) Report";
         String bodyText = "Dear member,\nPlease find your provident fund (PF) report in the email attachment.\n\nRegards,\nOmar Al Faruque \nProgrammer, BIDS\nEmail: omar@bids.org.bd\nCell: 01738404500\nTelephone: +88-02-58160474\nPABX: 258";
-        String pdfFilePath = "C://Users//CLOUDSLIP//Downloads//PF Report.pdf";
+        String pdfFilePath = "C://Users//Dell//Downloads//PF Report.pdf";
         // Gmail SMTP configuration
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");

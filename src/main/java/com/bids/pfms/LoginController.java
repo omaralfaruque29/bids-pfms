@@ -10,15 +10,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,7 +27,7 @@ public class LoginController {
     @Autowired
     private PdfReportService pdfReportService;
 
-    private int empID;
+
     private String employeeName;
     private String designation;
     private String period;
@@ -63,18 +61,25 @@ public class LoginController {
         return "login-page";
     }
 
-    @PostMapping("login")
-    public String login(Model model){
-        System.out.println("login method called");
+    //@PostMapping("login")
+    @GetMapping("api/report/{encodedEmpID}")
+    public String login(Model model, @PathVariable String encodedEmpID){
+
+//        decoding empID
+        byte[] decodedBytes = Base64.getUrlDecoder().decode(encodedEmpID);
+        String empIdStr = new String(decodedBytes).trim();
+        int realEmpId = Integer.parseInt(empIdStr);
+
+
         ProvidentFund providentFund = new ProvidentFund();
         //providentFund.getProvidentFund(4107);
-        employeeID=4107;
+        employeeID=realEmpId;                      //4107
         //providentFund.sendPFtoEmail();
         //providentFund.createReport();
 
 
         try {
-            File file = new File("F:\\Bids\\pfms\\other resources\\provident fund 2024-25.xlsx");
+            File file = new File("F:\\Java workspace\\BIDS\\bids-pfms\\other resources\\provident fund 2024-25.xlsx");
             FileInputStream fileInputStream = new FileInputStream(file);
             XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -98,7 +103,7 @@ public class LoginController {
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 if( row.getCell(1) != null && row.getCell(1).getCellType() == CellType.NUMERIC && row.getCell(1).getNumericCellValue() == employeeID){
-                    empID = employeeID;
+
                     //employeeID = (int) row.getCell(1).getNumericCellValue();
                     String[] employeeNameAndDesignation = row.getCell(2).getStringCellValue().split(", ", 2);
                     employeeName  = employeeNameAndDesignation[0];
@@ -114,7 +119,7 @@ public class LoginController {
                     netBalance = Math.round(row.getCell(10).getNumericCellValue() * 100.0) / 100.0;
 
 
-                    System.out.println("Employee ID: " +empID);
+                    System.out.println("Employee ID: " +employeeID);
                     System.out.println("Employee Name: " +employeeName);
                     System.out.println("Designation: " +designation);
                     System.out.println("GPF A/C No: ");
@@ -126,7 +131,7 @@ public class LoginController {
                     System.out.println("Loan balance 'as on " +endingDateofPeriod + "': " +loanBalance);
                     System.out.println("Net member's balance 'as on " +endingDateofPeriod + "': " +netBalance);
 
-                    model.addAttribute("empID", empID);
+                    model.addAttribute("empID", employeeID);
                     model.addAttribute("employeeName", employeeName);
                     model.addAttribute("designation", designation);
                     model.addAttribute("period", period);
