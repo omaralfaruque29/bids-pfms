@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +28,7 @@ public class LoginController {
     @Autowired
     private PdfReportService pdfReportService;
 
-
+    private int employeeID;
     private String employeeName;
     private String designation;
     private String period;
@@ -45,10 +46,6 @@ public class LoginController {
     private double loanBalance;
     private double netBalance;
 
-    private int employeeID;
-
-
-
     @RequestMapping("/hello")
     @ResponseBody
     public String getHello(){
@@ -61,23 +58,20 @@ public class LoginController {
         return "login-page";
     }
 
+    @GetMapping("api/pf/{empID}")
+    public String login(@PathVariable String empID){
+        employeeID = Integer.parseInt(empID.trim());
+        String encodedEmpID = Base64.getUrlEncoder().withoutPadding().encodeToString(empID.getBytes());
+        return "redirect:/api/pf/report/" + encodedEmpID;
+    }
+
     //@PostMapping("login")
-    @GetMapping("api/report/{encodedEmpID}")
-    public String login(Model model, @PathVariable String encodedEmpID){
-
-//        decoding empID
-        byte[] decodedBytes = Base64.getUrlDecoder().decode(encodedEmpID);
-        String empIdStr = new String(decodedBytes).trim();
-        int realEmpId = Integer.parseInt(empIdStr);
-
-
-        ProvidentFund providentFund = new ProvidentFund();
-        //providentFund.getProvidentFund(4107);
-        employeeID=realEmpId;                      //4107
-        //providentFund.sendPFtoEmail();
-        //providentFund.createReport();
-
-
+    @GetMapping("api/pf/report/{encodedEmpID}")
+    public String redirectLogin(Model model){
+////      decoding empID
+//        byte[] decodedBytes = Base64.getUrlDecoder().decode(encodedEmpID);
+//        String empIdStr = new String(decodedBytes).trim();
+//        int realEmpId = Integer.parseInt(empIdStr);
         try {
             File file = new File("F:\\Java workspace\\BIDS\\bids-pfms\\other resources\\provident fund 2024-25.xlsx");
             FileInputStream fileInputStream = new FileInputStream(file);
