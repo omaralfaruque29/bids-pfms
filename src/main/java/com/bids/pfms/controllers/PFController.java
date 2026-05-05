@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Controller
@@ -22,9 +23,6 @@ public class PFController {
     private ReportService reportService;
     @Autowired
     private PFService pfService;
-
-    private int employeeID;
-    private String encodedEmpID;
 
     @RequestMapping("/hello")
     @ResponseBody
@@ -40,27 +38,25 @@ public class PFController {
 
     @GetMapping("api/pf/{empID}")
     public String redirectToPF(@PathVariable String empID){
-        employeeID = Integer.parseInt(empID.trim());
-        encodedEmpID = Base64.getUrlEncoder().withoutPadding().encodeToString(empID.getBytes());
-        return "redirect:/api/pf/report/" + encodedEmpID;
+        String encodedEmpID = Base64.getUrlEncoder().withoutPadding().encodeToString(empID.getBytes());
+        return "redirect:/api/pf/pf-page/" + encodedEmpID;
     }
-    @GetMapping("api/pf/report/{encodedEmpID}")
-    public String PF(Model model){
+    @GetMapping("api/pf/pf-page/{encodedEmpID}")
+    public String PF(Model model, @PathVariable String encodedEmpID){
+        int employeeID = Integer.parseInt(new String(Base64.getUrlDecoder().decode(encodedEmpID), StandardCharsets.UTF_8));
         pfService.getPF(model, employeeID);
         return "pf-page";
     }
 
-    @GetMapping("api/pf/report/pdf/{empID}")
-    public String redirectToDownloadPfReportAsPDF(@PathVariable int empID){
-        employeeID = empID;
-        System.out.println(employeeID);
-        //String encodedEmpID = Base64.getUrlEncoder().withoutPadding().encodeToString(empID.getBytes());
-        return "redirect:/api/pf/report/pdf/download/" + encodedEmpID;
-    }
-    @GetMapping("api/pf/report/pdf/download/{encodedEmpID}")
-    public ResponseEntity<byte[]> downloadPfReportAsPDF() throws Exception {
-        System.out.println("called the function");
-        byte[] pdfBytes = reportService.createPFReportAsPdf(employeeID);
+//    @GetMapping("api/pf/redirect-to-report/{empID}")
+//    public String redirectToDownloadReport(@PathVariable String empID){
+//        String encodedEmpID = Base64.getUrlEncoder().withoutPadding().encodeToString(empID.getBytes());
+//        return "redirect:/api/pf/report/download/" + encodedEmpID;
+//    }
+    @GetMapping("api/pf/report/download/{empID}")
+    public ResponseEntity<byte[]> downloadReport(@PathVariable String empID) throws Exception {
+        //int employeeID = Integer.parseInt(new String(Base64.getUrlDecoder().decode(encodedEmpID), StandardCharsets.UTF_8));
+        byte[] pdfBytes = reportService.createPFReportAsPdf(Integer.parseInt(empID));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=PF Report.pdf")
