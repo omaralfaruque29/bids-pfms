@@ -169,9 +169,10 @@
 
 
 
-<script>
+<script th:inline="javascript">
     function downloadPdfReport() {
-        window.location.href = "/report";
+        var id = [[${empID}]];
+        window.location.href = "/api/pf/report/download/" + id;
         }
     function sendReport() {
         window.location.href = "/send-report";

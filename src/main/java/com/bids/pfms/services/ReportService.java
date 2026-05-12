@@ -34,8 +34,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class PdfReportService {
-    private int empID;
+public class ReportService {
+    private int employeeID;
     private String employeeName;
     private String designation;
     private String period;
@@ -53,7 +53,7 @@ public class PdfReportService {
     private double loanBalance;
     private double netBalance;
 
-    public void getProvidentFund(int employeeID){
+    public void getPF(){
         try {
             File file = new File("F:\\Java workspace\\BIDS\\bids-pfms\\other resources\\provident fund 2024-25.xlsx");
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -70,11 +70,6 @@ public class PdfReportService {
                 endingDateofPeriod = dates[1];
                 startingYearofPeriod = Integer.parseInt(startingDateofPeriod.substring(startingDateofPeriod.lastIndexOf(".")+ 1, startingDateofPeriod.length()));
                 endingYearofPeriod = Integer.parseInt(endingDateofPeriod.substring(endingDateofPeriod.lastIndexOf(".")+ 1));
-//                System.out.println("period: " + period);
-//                System.out.println("startingDateofPeriod: " +startingDateofPeriod);
-//                System.out.println("endingDateofPeriod: " +endingDateofPeriod);
-//                System.out.println("starting year: " + startingYearofPeriod);
-//                System.out.println("ending year: " + endingYearofPeriod);
             } else {
                 System.out.println("No brackets found.");
             }
@@ -84,7 +79,7 @@ public class PdfReportService {
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 if( row.getCell(1) != null && row.getCell(1).getCellType() == CellType.NUMERIC && row.getCell(1).getNumericCellValue() == employeeID){
-                    empID = employeeID;
+
                     //employeeID = (int) row.getCell(1).getNumericCellValue();
                     String[] employeeNameAndDesignation = row.getCell(2).getStringCellValue().split(", ", 2);
                     employeeName  = employeeNameAndDesignation[0];
@@ -93,22 +88,11 @@ public class PdfReportService {
                     subscriptionForCurrentFY = row.getCell(5).getNumericCellValue();
                     openingInterest = row.getCell(6).getNumericCellValue();
                     interestForPreviousFY = row.getCell(7).getNumericCellValue();
+                    //totalBalance = row.getCell(8).getNumericCellValue();
                     totalBalance = Math.round(row.getCell(8).getNumericCellValue() * 100.0) / 100.0;
                     loanBalance = row.getCell(9).getNumericCellValue();
+                    //netBalance = row.getCell(10).getNumericCellValue();
                     netBalance = Math.round(row.getCell(10).getNumericCellValue() * 100.0) / 100.0;
-
-                    System.out.println("Employee ID: " +empID);
-                    System.out.println("Employee Name: " +employeeName);
-                    System.out.println("Designation: " +designation);
-                    System.out.println("GPF A/C No: ");
-                    System.out.println("Opening subscription 'as on " +startingDateofPeriod+ "': " + openingSubscription);
-                    System.out.println("Subscription for the FY " +startingYearofPeriod+ "-" + endingYearofPeriod + ": " + subscriptionForCurrentFY);
-                    System.out.println("Opening interest 'as on " +startingDateofPeriod+ "': " + openingInterest);
-                    System.out.println("Interest received FY " +startingYearofPeriod+ "-" +endingYearofPeriod+ " (acccrued): "+interestForPreviousFY);
-                    System.out.println("Total member's balance " +endingDateofPeriod + ": " + totalBalance);
-                    System.out.println("Loan balance 'as on " +endingDateofPeriod + "': " +loanBalance);
-                    System.out.println("Net member's balance 'as on " +endingDateofPeriod + "': " +netBalance);
-
                     break;
                 }
             }
@@ -118,8 +102,9 @@ public class PdfReportService {
         }
     }
 
-    public byte[] createPdfReport(){
-        getProvidentFund(4107);
+    public byte[] createPFReportAsPdf(int empID){
+        this.employeeID = empID;
+        getPF();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             PdfWriter writer = new PdfWriter(out);
